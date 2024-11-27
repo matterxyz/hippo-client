@@ -20,6 +20,7 @@ public enum HippoClientError: Error {
     case noDataRetrieved
     case requestError
     case responseError
+    case missingClientOwnerID
 }
 
 /// A high-level interface for the Hippo service
@@ -31,7 +32,7 @@ public struct Hippo: Sendable {
     /// an HTTPReqestable for executing the requests
     let session: HTTPRequestable
     let dataLocation: URL
-    let clientOwnerID: String
+    public var clientOwnerID: String?
     let urlScheme: String
     
     let modelContainer: ModelContainer
@@ -60,7 +61,7 @@ public struct Hippo: Sendable {
     public init(
         baseURL: URL,
         session: some HTTPRequestable = URLSession.shared,
-        clientOwnerID: String,
+        clientOwnerID: String?,
         cryptographer: Cryptographer = ChaChaPolyCryptographer(),
         dataLocation: URL? = nil,
         modelContainer: ModelContainer,
@@ -242,6 +243,8 @@ public struct Hippo: Sendable {
     /// - Returns: Decrypted object data
     public func getObject(for clientID: String) async throws -> Data {
         var url = baseURL.appending(path: "object")
+        guard let clientOwnerID else { throw HippoClientError.missingClientOwnerID }
+
         url.append(queryItems: [
             .init(name: "client_reference_owner", value: clientOwnerID),
             .init(name: "client_reference_id", value: clientID)
@@ -336,6 +339,9 @@ public struct Hippo: Sendable {
 
         let encoder = JSONEncoder()
         encoder.outputFormatting = .sortedKeys
+
+        guard let clientOwnerID else { throw HippoClientError.missingClientOwnerID }
+
         let requestUploadCredentials = RequestUploadCredentials(
             clientReferenceOwner: clientOwnerID,
             clientReferenceID: clientID
