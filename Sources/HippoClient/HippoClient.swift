@@ -91,7 +91,7 @@ public struct Hippo: Sendable {
     /// Store an object in Hippo. This is a synchronous method
     /// - Parameter data: The data to be saved
     /// - Returns: A URL reference for the saved object
-    public func saveObject(_ data: Data, contentType: String) async throws -> URL {
+    public func saveObject(_ data: Data, contentType: String) throws -> URL {
         let fileManager = FileManager.default
         // Save the object to disk
         let documents = try fileManager.url(
