@@ -38,13 +38,26 @@ public struct Hippo: Sendable {
     let modelContainer: ModelContainer
 
     public static func makeModelConfiguration(
-        groupContainer: ModelConfiguration.GroupContainer,
+           groupContainer: ModelConfiguration.GroupContainer,
+           cloudKitContainerID: String
+       ) -> ModelConfiguration {
+           let modelConfiguration = ModelConfiguration(
+               "hippo",
+               schema: Self.makeSchema(),
+               groupContainer: groupContainer,
+               cloudKitDatabase: .private(cloudKitContainerID)
+           )
+           
+        return modelConfiguration
+    }
+    
+    public static func makeModelConfiguration(
+        containerURL: URL,
         cloudKitContainerID: String
     ) -> ModelConfiguration {
         let modelConfiguration = ModelConfiguration(
-            "hippo",
             schema: Self.makeSchema(),
-            groupContainer: groupContainer,
+            url: containerURL.appendingPathComponent("hippo.sqlite"),
             cloudKitDatabase: .private(cloudKitContainerID)
         )
         
