@@ -44,9 +44,13 @@ class HippoURLProtocol: URLProtocol {
         let path = components.path
         
         Task {
-            let data = try! await hippo.retrieveObject(by: url)
-        
-            guard let response = HTTPURLResponse(httpResponse: HTTPResponse(status: .ok), url: url) else {
+            guard let data = try? await hippo.retrieveObject(by: url) else {
+                client?.urlProtocol(self, didFailWithError: HippoClientError.unexpectedError)
+                return
+            }
+
+            guard
+                let response = HTTPURLResponse(httpResponse: HTTPResponse(status: .ok), url: url) else {
                 client?.urlProtocol(self, didFailWithError: HippoClientError.malformedURL)
                 return
             }
