@@ -51,14 +51,27 @@ public struct Hippo: Sendable {
         return modelConfiguration
     }
     
+     /// Creates a ModelConfiguration
+    /// - Parameters:
+    ///   - containerURL: url for the database. Will save as `hippo.sqlite`
+    ///   - cloudKitContainerID: the private cloudkit container id. If nil, will not use cloudkit
+    /// - Returns: a ModelConfiguration
     public static func makeModelConfiguration(
         containerURL: URL,
-        cloudKitContainerID: String
+        cloudKitContainerID: String?
     ) -> ModelConfiguration {
+        
+        var cloudKitDatabase: ModelConfiguration.CloudKitDatabase
+        if let cloudKitContainerID {
+            cloudKitDatabase = .private(cloudKitContainerID)
+        } else {
+            cloudKitDatabase = .none
+        }
+        
         let modelConfiguration = ModelConfiguration(
             schema: Self.makeSchema(),
             url: containerURL.appendingPathComponent("hippo.sqlite"),
-            cloudKitDatabase: .private(cloudKitContainerID)
+            cloudKitDatabase: cloudKitDatabase
         )
         
         return modelConfiguration
